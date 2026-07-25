@@ -3,6 +3,15 @@ import { EXAMPLE_DISHES, generateElevation, type ElevationPlan, type HistoryEntr
 
 type View = 'home' | 'new' | 'result' | 'history'
 
+const DISH_ICONS: Record<string, string> = {
+  salmon: '🐟',
+  piccata: '🍗',
+  pasta: '🍝',
+}
+function dishIcon(id: string) {
+  return DISH_ICONS[id] ?? '🍽️'
+}
+
 export default function App() {
   const [view, setView] = useState<View>('home')
   const [history, setHistory] = useState<HistoryEntry[]>([])
@@ -26,14 +35,20 @@ export default function App() {
     <div className="app">
       <Nav view={view} setView={setView} />
       <main className="main">
-        {view === 'home' && <Home onStart={() => setView('new')} />}
-        {view === 'new' && <NewElevation onGenerated={handleGenerated} />}
-        {view === 'result' && activePlan && activeInput && (
-          <Result plan={activePlan} input={activeInput.input} goal={activeInput.goal} />
-        )}
-        {view === 'history' && <History history={history} onReopen={reopen} onStart={() => setView('new')} />}
+        <div className="view-transition" key={view + (activePlan?.id ?? '')}>
+          {view === 'home' && <Home onStart={() => setView('new')} />}
+          {view === 'new' && <NewElevation onGenerated={handleGenerated} />}
+          {view === 'result' && activePlan && activeInput && (
+            <Result plan={activePlan} input={activeInput.input} goal={activeInput.goal} />
+          )}
+          {view === 'history' && (
+            <History history={history} onReopen={reopen} onStart={() => setView('new')} />
+          )}
+        </div>
       </main>
-      <footer className="footer">Leaven — demo build. Elevation plans shown here are canned examples, not live AI output.</footer>
+      <footer className="footer">
+        Leaven — demo build. Elevation plans shown here are canned examples, not live AI output.
+      </footer>
     </div>
   )
 }
@@ -42,14 +57,16 @@ function Nav({ view, setView }: { view: View; setView: (v: View) => void }) {
   return (
     <header className="nav">
       <div className="brand" onClick={() => setView('home')}>
-        🌿 Leaven
+        <span className="brand-mark">🌿</span> Leaven
       </div>
       <nav className="nav-links">
         <button className={view === 'home' ? 'active' : ''} onClick={() => setView('home')}>Home</button>
         <button className={view === 'new' ? 'active' : ''} onClick={() => setView('new')}>New Elevation</button>
         <button className={view === 'history' ? 'active' : ''} onClick={() => setView('history')}>History</button>
       </nav>
-      <div className="user-badge" title="Demo mode — auth is not implemented">demo@leaven.app</div>
+      <div className="user-badge" title="Demo mode — auth is not implemented">
+        <span className="user-dot" /> demo@leaven.app
+      </div>
     </header>
   )
 }
@@ -57,17 +74,24 @@ function Nav({ view, setView }: { view: View; setView: (v: View) => void }) {
 function Home({ onStart }: { onStart: () => void }) {
   return (
     <section className="home">
-      <h1>Elevate the dish you already cook.</h1>
-      <p className="lede">
-        Leaven takes a dish you already make with confidence and shows you how to upgrade it with
-        professional technique, equipment, and presentation — instead of pointing you to another
-        recipe from scratch.
-      </p>
-      <button className="cta" onClick={onStart}>Try a New Elevation →</button>
+      <div className="hero">
+        <span className="eyebrow">Cooking, elevated</span>
+        <h1>Elevate the dish you already cook.</h1>
+        <p className="lede">
+          Leaven takes a dish you already make with confidence and shows you how to upgrade it with
+          professional technique, equipment, and presentation — instead of pointing you to another
+          recipe from scratch.
+        </p>
+        <button className="cta" onClick={onStart}>
+          Try a New Elevation <span className="cta-arrow">→</span>
+        </button>
+      </div>
 
+      <h2 className="section-heading">Seeded examples</h2>
       <div className="example-grid">
         {EXAMPLE_DISHES.map((d) => (
           <div className="example-card" key={d.id}>
+            <div className="example-icon">{dishIcon(d.id)}</div>
             <h3>{d.label}</h3>
             <p>{d.sampleInput}</p>
             <span className={`badge badge-${d.plan.outputType}`}>
@@ -127,7 +151,7 @@ function NewElevation({
       <div className="example-chips">
         {EXAMPLE_DISHES.map((d) => (
           <button type="button" key={d.id} className="chip" onClick={() => useExample(d.id)}>
-            {d.label}
+            <span>{dishIcon(d.id)}</span> {d.label}
           </button>
         ))}
       </div>
@@ -153,7 +177,13 @@ function NewElevation({
         </label>
         {error && <div className="error">{error}</div>}
         <button className="cta" type="submit" disabled={loading}>
-          {loading ? 'Generating elevation…' : 'Elevate this dish →'}
+          {loading ? (
+            <>
+              <span className="spinner" /> Generating elevation…
+            </>
+          ) : (
+            <>Elevate this dish <span className="cta-arrow">→</span></>
+          )}
         </button>
       </form>
     </section>
@@ -168,35 +198,33 @@ function Result({ plan, input, goal }: { plan: ElevationPlan; input: string; goa
   return (
     <section className="result">
       <div className="result-header">
-        <h2>{plan.dishName}</h2>
-        <span className={`badge badge-${plan.outputType}`}>
-          {plan.outputType === 'delta' ? 'Delta upgrade' : 'Full rewrite'}
-        </span>
+        <div className="result-icon">🍽️</div>
+        <div>
+          <h2>{plan.dishName}</h2>
+          <span className={`badge badge-${plan.outputType}`}>
+            {plan.outputType === 'delta' ? 'Delta upgrade' : 'Full rewrite'}
+          </span>
+        </div>
       </div>
 
-      <p className="original-input">
-        <strong>You described:</strong> {input}
-        {goal && (
-          <>
-            <br />
-            <strong>Goal:</strong> {goal}
-          </>
-        )}
-      </p>
+      <div className="original-input">
+        <p><span className="label">You described</span>{input}</p>
+        {goal && <p><span className="label">Goal</span>{goal}</p>}
+      </div>
 
       <p className="summary">{plan.summary}</p>
 
       {plan.libraryMatches.length > 0 && (
         <div className="library-matches">
           {plan.libraryMatches.map((m) => (
-            <span key={m} className="chip chip-static">{m}</span>
+            <span key={m} className="chip chip-static">✓ {m}</span>
           ))}
         </div>
       )}
 
       {plan.changes.length > 0 && (
         <div className="section">
-          <h3>Recommended changes</h3>
+          <h3><span className="section-icon">✏️</span>Recommended changes</h3>
           <ul>
             {plan.changes.map((c, i) => <li key={i}>{c}</li>)}
           </ul>
@@ -205,7 +233,7 @@ function Result({ plan, input, goal }: { plan: ElevationPlan; input: string; goa
 
       {plan.steps.length > 0 && (
         <div className="section">
-          <h3>Steps</h3>
+          <h3><span className="section-icon">📋</span>Steps</h3>
           <ol>
             {plan.steps.map((s, i) => <li key={i}>{s}</li>)}
           </ol>
@@ -213,14 +241,14 @@ function Result({ plan, input, goal }: { plan: ElevationPlan; input: string; goa
       )}
 
       <div className="section">
-        <h3>Equipment</h3>
+        <h3><span className="section-icon">🔧</span>Equipment</h3>
         <ul>
           {plan.equipment.map((e, i) => <li key={i}>{e}</li>)}
         </ul>
       </div>
 
       <div className="section">
-        <h3>Plating</h3>
+        <h3><span className="section-icon">🎨</span>Plating</h3>
         <p>{plan.plating}</p>
       </div>
 
@@ -267,8 +295,11 @@ function History({
     return (
       <section className="history">
         <h2>History</h2>
-        <p>No elevations yet this session.</p>
-        <button className="cta" onClick={onStart}>Create your first elevation →</button>
+        <div className="empty-state">
+          <div className="empty-icon">📖</div>
+          <p>No elevations yet this session.</p>
+          <button className="cta" onClick={onStart}>Create your first elevation <span className="cta-arrow">→</span></button>
+        </div>
       </section>
     )
   }
@@ -279,13 +310,16 @@ function History({
       <ul className="history-list">
         {history.map((entry) => (
           <li key={entry.plan.id} onClick={() => onReopen(entry)}>
-            <div>
-              <strong>{entry.plan.dishName}</strong>
-              <span className={`badge badge-${entry.plan.outputType}`}>
-                {entry.plan.outputType === 'delta' ? 'Delta' : 'Rewrite'}
-              </span>
+            <div className="history-left">
+              <div className="history-icon">🍽️</div>
+              <div>
+                <strong>{entry.plan.dishName}</strong>
+                <span className="history-date">{new Date(entry.plan.createdAt).toLocaleString()}</span>
+              </div>
             </div>
-            <span className="history-date">{new Date(entry.plan.createdAt).toLocaleString()}</span>
+            <span className={`badge badge-${entry.plan.outputType}`}>
+              {entry.plan.outputType === 'delta' ? 'Delta' : 'Rewrite'}
+            </span>
           </li>
         ))}
       </ul>
