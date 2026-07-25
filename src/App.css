@@ -249,3 +249,40 @@ textarea {
   padding: 14px;
   border-top: 1px solid var(--line);
 }
+
+/* UGLY MODE */
+* {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: none !important;
+  font-family: 'Comic Sans MS', 'Papyrus', cursive !important;
+}
+
+body {
+  background: #00ff00 !important;
+  color: #ff00ff !important;
+}
+
+.nav {
+  background: #ff0000 !important;
+  border-bottom: 6px dashed #0000ff !important;
+}
+
+.brand { color: #ffff00 !important; text-shadow: 2px 2px #000; }
+
+.nav-links button, .cta, .chip, .history-list li, .example-card, .section, .feedback {
+  background: #ffff00 !important;
+  border: 4px solid #ff00ff !important;
+  color: #0000ff !important;
+}
+
+.cta { background: #ff6600 !important; color: #000 !important; }
+
+h1, h2, h3 {
+  color: #ff0000 !important;
+  text-decoration: underline wavy #0000ff;
+}
+
+a, .brand, .eyebrow { color: #00ffff !important; }
+
+.footer { background: #000 !important; color: #0f0 !important; }
