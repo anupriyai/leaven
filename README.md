@@ -1,6 +1,33 @@
-# leaven
+# Leaven (demo build)
 
-elevate your cooking!
+Elevate your cooking! This is a lightweight, frontend-only demo of the Leaven
+product flow from the design doc: describe a dish you already cook, get back
+a structured elevation plan (a focused delta or a full rewrite), save it to
+history, and leave feedback.
 
+There is no backend, database, auth, or live LLM call in this build — it's
+meant for quick demos. `src/data.ts` matches your input against a few seeded
+example dishes (salmon, chicken piccata, weeknight pasta) and returns a
+canned elevation plan; anything else falls back to a generic elevation
+template so the flow always produces a result.
 
-testest
+## Run it
+
+```bash
+npm install
+npm run dev
+```
+
+Then open the printed local URL (typically http://localhost:5173).
+
+## What's here
+
+- `src/App.tsx` — Home, New Elevation, Result, and History screens (client-side view state, no router)
+- `src/data.ts` — seeded example dishes + the mocked "elevation engine"
+- `src/App.css` — styling
+
+## Not included (see the full design doc for the real scope)
+
+Google OAuth / JWT auth, PostgreSQL + SQLAlchemy models, the FastAPI backend,
+Ollama/Groq inference, admin library CRUD, and multimodal input (images,
+recipe links, YouTube).
