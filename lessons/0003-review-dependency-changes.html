@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Review Leaven's Dependency Changes</title>
+    <link rel="stylesheet" href="../assets/course.css">
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Leaven GitHub Actions · Lesson 3</p>
+      <h1>Review what a package change introduces</h1>
+      <p class="win"><strong>Tangible win:</strong> find a dependency-review summary on a pull request that changes <code>package.json</code> or <code>package-lock.json</code>.</p>
+
+      <h2>What is different here?</h2>
+      <p>The workflow delegates its core work to <code>actions/dependency-review-action@v5</code>. The action compares dependency snapshots across the pull request and reports newly introduced vulnerabilities or invalid licenses. It needs only <code>contents: read</code> in this setup.</p>
+      <p>Leaven is public, so it meets the action's availability requirement. Private repositories need GitHub Advanced Security. See the official <a href="https://github.com/actions/dependency-review-action">Dependency Review Action guide</a>.</p>
+
+      <h2>Try it</h2>
+      <ol>
+        <li>Open a pull request that changes an npm dependency.</li>
+        <li>Open the <strong>Dependency Review</strong> job.</li>
+        <li>Read both the step log and the job summary.</li>
+        <li>Decide whether the result is informational or should block merging.</li>
+      </ol>
+
+      <div class="practice">
+        <strong>Retrieval check:</strong> What starts this workflow?
+        <details>
+          <summary>Check the answer</summary>
+          <p>The <code>pull_request</code> event starts it for each pull request.</p>
+        </details>
+      </div>
+
+      <p>Ask Codex before adding policy options such as severity or license thresholds; those choices should match the project's risk tolerance.</p>
+      <nav>
+        <a href="0002-read-the-ci-check.html">Previous: CI</a>
+        <a href="../reference/github-actions-cheat-sheet.html">Cheat sheet</a>
+      </nav>
+    </main>
+  </body>
+</html>

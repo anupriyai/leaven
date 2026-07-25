@@ -1,0 +1,386 @@
+# =============================================================================
+# GITHUB ACTIONS WORKFLOW TEMPLATE FOR PM REFERENCE
+# =============================================================================
+#
+# REFERENCE ONLY
+# --------------
+# GitHub only executes workflow files stored in `.github/workflows/`.
+# This file lives in `reference/`, so reading or editing it will not start a run.
+# To use it, copy it to `.github/workflows/<descriptive-name>.yml`, remove the
+# options you do not need, and replace the example commands.
+#
+# PM MENTAL MODEL
+# ---------------
+# Event -> Workflow -> Jobs -> Runner for each job -> Ordered steps
+#
+# - An EVENT starts a workflow, such as a pull request or manual button click.
+# - A WORKFLOW is this entire YAML file.
+# - A JOB is a major unit of work, such as validation or deployment.
+# - A RUNNER is the temporary machine on which one job executes.
+# - A STEP is one command or reusable action within a job.
+#
+# OFFICIAL DOCUMENTATION
+# ----------------------
+# Workflow syntax:
+# https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+# Events and triggers:
+# https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows
+# Contexts:
+# https://docs.github.com/en/actions/reference/workflows-and-actions/contexts
+# Expressions:
+# https://docs.github.com/en/actions/concepts/workflows-and-actions/expressions
+# Variables:
+# https://docs.github.com/en/actions/concepts/workflows-and-actions/variables
+# Secure use:
+# https://docs.github.com/en/actions/reference/security/secure-use
+
+# =============================================================================
+# 1. WORKFLOW IDENTITY
+# =============================================================================
+
+# `name` is the workflow label displayed in the repository's Actions tab.
+# Choose a short purpose-based name, such as "CI", "Dependency Review", or
+# "Deploy Preview". If omitted, GitHub displays the workflow file path.
+name: Example CI Workflow
+
+# `run-name` is the label for one specific run.
+# It is optional and may use `${{ }}` expressions to include context data.
+# Other useful values include `${{ github.ref_name }}` for the branch and
+# `${{ github.event_name }}` for the event that started the run.
+run-name: "Example CI run started by ${{ github.actor }}"
+
+# =============================================================================
+# 2. TRIGGERS
+# =============================================================================
+
+# `on` lists the events that start the workflow. Multiple events work as "OR":
+# a matching pull request OR push OR manual request starts a separate run.
+# Keep only events that serve a real purpose to avoid duplicate or costly runs.
+on:
+  # `pull_request` is the usual CI trigger. Here it runs when a pull request
+  # targets `main`, including when the PR is opened or receives new commits.
+  pull_request:
+    branches:
+      - main
+
+    # Common optional PR filters:
+    #
+    # Run only for selected PR activities:
+    # types:
+    #   - opened
+    #   - synchronize
+    #   - reopened
+    #
+    # Run only when matching files change:
+    # paths:
+    #   - "src/**"
+    #   - "package.json"
+    #   - "package-lock.json"
+    #
+    # Exclude matching branches or files with `branches-ignore` or
+    # `paths-ignore`. Do not use an include and its matching `*-ignore` key
+    # for the same event; use `!` patterns when both behaviors are needed.
+
+  # `push` runs after commits reach a matching branch. It is useful for
+  # validating `main`, updating trusted caches, publishing, or deploying.
+  push:
+    branches:
+      - main
+
+    # Common optional push filters:
+    #
+    # tags:
+    #   - "v*"             # Run for version tags such as v1.2.0.
+    # paths:
+    #   - "src/**"
+    # paths-ignore:
+    #   - "docs/**"
+
+  # `workflow_dispatch` creates a "Run workflow" button in the Actions tab.
+  # The workflow must exist on the default branch before the button appears.
+  workflow_dispatch:
+    # Inputs let the person starting the run provide structured information.
+    # Available input types: string, boolean, choice, environment, and number.
+    inputs:
+      reason:
+        description: Why are you running this workflow?
+        required: false
+        default: Manual validation
+        type: string
+
+      # Example choice input:
+      # target:
+      #   description: Where should this run?
+      #   required: true
+      #   type: choice
+      #   options:
+      #     - staging
+      #     - production
+      #
+      # Example checkbox:
+      # dry_run:
+      #   description: Preview without making changes?
+      #   required: true
+      #   default: true
+      #   type: boolean
+
+  # Other common triggers are shown below. Uncomment only when needed.
+  #
+  # Run on a UTC schedule. Scheduled workflows use the default branch.
+  # schedule:
+  #   - cron: "0 9 * * 1-5"  # 09:00 UTC, Monday through Friday.
+  #
+  # Run when a GitHub release is published:
+  # release:
+  #   types:
+  #     - published
+  #
+  # Run when an issue is opened or labeled:
+  # issues:
+  #   types:
+  #     - opened
+  #     - labeled
+
+# =============================================================================
+# 3. TOKEN PERMISSIONS
+# =============================================================================
+
+# Every job receives a temporary `GITHUB_TOKEN`. `permissions` limits what that
+# token can do. Start read-only and grant additional access only when required.
+# Once any permission is listed, unspecified permissions are set to `none`.
+permissions:
+  # Needed by `actions/checkout` to read repository contents.
+  contents: read
+
+  # Other common permissions, normally left disabled:
+  #
+  # pull-requests: write  # Add labels or comments to pull requests.
+  # issues: write         # Create, edit, label, or comment on issues.
+  # packages: write       # Publish packages to GitHub Packages.
+  # deployments: write    # Create or update deployments.
+  # id-token: write       # Request an OIDC token for cloud authentication.
+  #
+  # `permissions: {}` disables every permission.
+  # Avoid `write-all`; broad access increases the impact of a compromised step.
+  #
+  # A job can override these workflow-level permissions with its own
+  # `permissions` block when only that job needs extra access.
+
+# =============================================================================
+# 4. VARIABLES AND DEFAULTS
+# =============================================================================
+
+# Workflow-level `env` values are available to every job and step.
+# Use them for non-sensitive configuration that belongs to this workflow.
+# Quote version numbers and values that YAML might interpret as numbers or
+# booleans. Never place passwords, API keys, or tokens here.
+env:
+  NODE_VERSION: "22"
+
+# Other variable sources:
+#
+# `${{ env.NODE_VERSION }}`     Value from an `env` block.
+# `${{ vars.SERVICE_URL }}`     Repository/org/environment configuration value.
+# `${{ secrets.API_TOKEN }}`    Encrypted secret configured in GitHub settings.
+# `$GITHUB_REPOSITORY`          Default runner environment variable.
+#
+# `env` may also appear inside one job or one step. The narrowest definition
+# wins: step-level overrides job-level, which overrides workflow-level.
+
+# `defaults.run` applies defaults only to shell-command (`run`) steps.
+# It does not affect reusable-action (`uses`) steps.
+defaults:
+  run:
+    # Common shells include `bash`, `pwsh`, and `cmd` depending on the runner.
+    shell: bash
+
+    # For a monorepo, commands can default to one subdirectory:
+    # working-directory: ./frontend
+
+# =============================================================================
+# 5. CONCURRENCY
+# =============================================================================
+
+# Without `concurrency`, multiple runs may execute at the same time.
+# This group allows only the newest run of this workflow for the same Git ref.
+# It saves CI time when several commits are pushed quickly to one branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+  # Common alternatives:
+  #
+  # - Set `cancel-in-progress: false` when every run must finish.
+  # - Use a fixed group such as `production-deploy` to prevent two deployments
+  #   from changing production simultaneously.
+  # - Remove the entire block when parallel runs are safe and useful.
+
+# =============================================================================
+# 6. JOBS
+# =============================================================================
+
+# Jobs run in parallel by default and normally receive separate runners.
+# Use `needs` when one job must wait for another.
+jobs:
+  # `validate` is the job ID used by `needs` and expressions. It is not the
+  # user-facing label and must be unique within this workflow.
+  validate:
+    # `name` is shown in the run and as a pull-request status check.
+    # Keep required-check names unique and stable after branch protection uses
+    # them; renaming one can leave pull requests waiting for an old check name.
+    name: Type Check and Build
+
+    # `runs-on` chooses the runner machine.
+    # Common GitHub-hosted options:
+    # - ubuntu-latest: typical, fast, and appropriate for most CI.
+    # - windows-latest: useful for Windows-specific behavior.
+    # - macos-latest: useful for Apple-platform builds.
+    # - [self-hosted, linux, x64]: a matching machine managed by your team.
+    runs-on: ubuntu-latest
+
+    # Stop a stuck job. Without this key, the default maximum is much longer.
+    timeout-minutes: 10
+
+    # A job-level condition can skip the entire job.
+    # Examples:
+    # if: ${{ github.event_name == 'pull_request' }}
+    # if: ${{ github.ref_name == 'main' }}
+
+    # Job-level variables are visible only inside this job.
+    env:
+      CI: "true"
+
+    # A matrix creates multiple versions of the same job. For example, replace
+    # `runs-on` above with `${{ matrix.os }}` and uncomment:
+    #
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     os:
+    #       - ubuntu-latest
+    #       - windows-latest
+    #     node-version:
+    #       - "20"
+    #       - "22"
+    #
+    # Then use `${{ matrix.node-version }}` in `setup-node`. A matrix is useful
+    # for libraries supporting several platforms or runtime versions, but it
+    # creates more jobs and consumes more Actions minutes.
+
+    # Steps run from top to bottom on this job's runner. A failing step normally
+    # stops later steps unless their `if` condition says otherwise.
+    steps:
+      # `name` is the readable label shown in the job log.
+      # `uses` runs code packaged as a reusable action.
+      # Pin an action to a maintained major version or, for the strongest
+      # immutability, to a full commit SHA reviewed by the team.
+      - name: Check out repository
+        uses: actions/checkout@v6
+        # Common checkout options:
+        # with:
+        #   fetch-depth: 0           # Fetch full history instead of one commit.
+        #   persist-credentials: false  # Do not leave Git credentials configured.
+
+      # `with` supplies named inputs defined by a reusable action.
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          # For a lockfile outside the repository root:
+          # cache-dependency-path: frontend/package-lock.json
+
+      # `run` executes a shell command. It can contain one line or a multiline
+      # script introduced with `|`.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build application
+        run: |
+          echo "Building on $RUNNER_OS"
+          npm run build
+
+        # Step-level alternatives:
+        # working-directory: ./frontend  # Run from a subdirectory.
+        # shell: pwsh                    # Override the default shell.
+        # timeout-minutes: 5             # Limit only this step.
+        # continue-on-error: true         # Record failure but continue the job.
+        #
+        # Use `continue-on-error` sparingly; a required validation should fail
+        # clearly rather than appear successful.
+
+      # `if` evaluates an expression and controls whether this step runs.
+      # Common status functions include `success()`, `failure()`, `cancelled()`,
+      # and `always()`. Conditions may also inspect contexts.
+      - name: Show the reason for a manual run
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          # Inputs and event fields can contain untrusted text. Put the
+          # expression in an environment variable instead of directly inside
+          # the shell script to reduce script-injection risk.
+          RUN_REASON: ${{ inputs.reason }}
+        run: |
+          echo "Run reason: $RUN_REASON"
+
+      # Secrets are configured under repository, organization, or environment
+      # settings. Never commit the actual secret value to a workflow.
+      #
+      # Example:
+      # - name: Call a protected service
+      #   env:
+      #     API_TOKEN: ${{ secrets.EXAMPLE_API_TOKEN }}
+      #   run: ./scripts/call-service.sh
+      #
+      # If a step needs the GitHub API, prefer the temporary `GITHUB_TOKEN`
+      # with the smallest permissions instead of a long-lived personal token.
+
+  # This is a second job. Without `needs`, it would start alongside `validate`.
+  report:
+    name: Report validation result
+
+    # `needs` makes this job wait until `validate` finishes and exposes its
+    # result through the `needs` context. It can also be a one-line string:
+    # `needs: validate`. Use a list when waiting for several jobs.
+    needs:
+      - validate
+
+    # A job that `needs` a failed job is normally skipped. `always()` makes this
+    # reporting job run after validation whether validation passed or failed.
+    if: ${{ always() }}
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    # For a deployment job, `environment` can connect the job to protection
+    # rules, required reviewers, environment variables, and environment secrets:
+    # environment: production
+
+    steps:
+      - name: Print result
+        env:
+          VALIDATION_RESULT: ${{ needs.validate.result }}
+        run: |
+          echo "Validation result: $VALIDATION_RESULT"
+
+# =============================================================================
+# 7. COMMON EXPRESSION CONTEXTS
+# =============================================================================
+#
+# `${{ github.* }}`  Repository, event, branch, actor, SHA, and run information.
+# `${{ inputs.* }}`  Values supplied to `workflow_dispatch` or reusable flows.
+# `${{ env.* }}`     Environment values declared in the workflow.
+# `${{ vars.* }}`    Non-secret configuration stored in GitHub settings.
+# `${{ secrets.* }}` Encrypted values stored in GitHub settings.
+# `${{ runner.* }}`  Information about the current runner.
+# `${{ job.* }}`     Current job status and related information.
+# `${{ steps.* }}`   Outputs or conclusions from steps that have an `id`.
+# `${{ needs.* }}`   Results and outputs from prerequisite jobs.
+# `${{ matrix.* }}`  Current values generated by a matrix strategy.
+#
+# Expressions are evaluated by GitHub; `$NAME` is evaluated later by the shell.
+# Treat PR titles, branch names, issue text, manual inputs, and similar context
+# values as untrusted. Pass them through `env` instead of embedding them directly
+# into a `run` script.

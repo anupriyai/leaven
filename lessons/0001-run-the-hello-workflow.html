@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Run Leaven's Hello Workflow</title>
+    <link rel="stylesheet" href="../assets/course.css">
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Leaven GitHub Actions · Lesson 1</p>
+      <h1>Run one workflow by hand</h1>
+      <p class="win"><strong>Tangible win:</strong> trigger a workflow with your own input and find the output in its step logs.</p>
+
+      <h2>The mental model</h2>
+      <p><code>on</code> chooses the event. <code>jobs</code> groups work. <code>runs-on</code> chooses GitHub's temporary machine. <code>steps</code> run in order on that machine.</p>
+
+      <h2>Try it</h2>
+      <ol>
+        <li>Commit <code>.github/workflows/hello.yml</code> to <code>main</code>.</li>
+        <li>Open <strong>GitHub → Actions → Hello Workflow</strong>.</li>
+        <li>Choose <strong>Run workflow</strong>, enter a name, and run it.</li>
+        <li>Open the completed run and expand both steps.</li>
+      </ol>
+      <p>The button appears only after a <code>workflow_dispatch</code> workflow exists on the default branch, as documented in <a href="https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow">GitHub's manual-run guide</a>.</p>
+
+      <div class="practice">
+        <strong>Retrieval check:</strong> Before reopening the YAML, say which key controls the trigger and which key selects the runner.
+        <details>
+          <summary>Check the answer</summary>
+          <p><code>on</code> controls the trigger; <code>runs-on</code> selects the runner.</p>
+        </details>
+      </div>
+
+      <p>Ask Codex about any line that is unclear before moving on.</p>
+      <nav>
+        <a href="../reference/github-actions-cheat-sheet.html">Cheat sheet</a>
+        <a href="0002-read-the-ci-check.html">Next: CI</a>
+      </nav>
+    </main>
+  </body>
+</html>
