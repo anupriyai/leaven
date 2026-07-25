@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Read Leaven's CI Check</title>
+    <link rel="stylesheet" href="../assets/course.css">
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Leaven GitHub Actions · Lesson 2</p>
+      <h1>Turn a pull request into evidence</h1>
+      <p class="win"><strong>Tangible win:</strong> identify whether a pull request fails during installation, type-checking, or the Vite build.</p>
+
+      <h2>What the runner does</h2>
+      <pre><code>checkout → set up Node 22 → npm ci → typecheck → build</code></pre>
+      <p><code>uses</code> invokes a reusable action. <code>run</code> executes a shell command. The official <a href="https://github.com/actions/setup-node">setup-node action</a> installs the chosen Node version and can cache npm's download cache.</p>
+
+      <h2>Try it</h2>
+      <ol>
+        <li>Push a branch and open a pull request into <code>main</code>.</li>
+        <li>Open the <strong>Type Check and Build</strong> check.</li>
+        <li>Map each visible step back to <code>.github/workflows/ci.yml</code>.</li>
+        <li>Later, intentionally introduce a TypeScript error and observe which step turns red.</li>
+      </ol>
+
+      <div class="practice">
+        <strong>Retrieval check:</strong> Why use <code>npm ci</code> instead of <code>npm install</code> here?
+        <details>
+          <summary>Check the answer</summary>
+          <p>CI should install exactly from the committed lockfile and fail if the manifest and lockfile disagree.</p>
+        </details>
+      </div>
+
+      <p>Ask Codex to help interpret a failed run; the first useful evidence is the earliest failed step.</p>
+      <nav>
+        <a href="0001-run-the-hello-workflow.html">Previous: Hello</a>
+        <a href="../reference/github-actions-cheat-sheet.html">Cheat sheet</a>
+        <a href="0003-review-dependency-changes.html">Next: Dependency Review</a>
+      </nav>
+    </main>
+  </body>
+</html>

@@ -26,6 +26,24 @@ Then open the printed local URL (typically http://localhost:5173).
 - `src/data.ts` — seeded example dishes + the mocked "elevation engine"
 - `src/App.css` — styling
 
+## GitHub Actions tutorial
+
+The repository includes three small workflows:
+
+- `.github/workflows/hello.yml` — manually run a greeting and inspect its logs
+- `.github/workflows/ci.yml` — type-check and build pushes and pull requests to `main`
+- `.github/workflows/dependency-review.yml` — review dependency changes in pull requests
+
+Start with [lesson 1](lessons/0001-run-the-hello-workflow.html), or keep the
+[GitHub Actions cheat sheet](reference/github-actions-cheat-sheet.html) open
+while reading the workflow files. PMs can also use the commented
+[workflow template](reference/github-actions-workflow-template.yml) to see the
+main parts together. Run the same application validation locally with:
+
+```bash
+npm run check
+```
+
 ## Not included (see the full design doc for the real scope)
 
 Google OAuth / JWT auth, PostgreSQL + SQLAlchemy models, the FastAPI backend,

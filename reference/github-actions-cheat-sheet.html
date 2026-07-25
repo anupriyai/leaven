@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Leaven GitHub Actions Cheat Sheet</title>
+    <link rel="stylesheet" href="../assets/course.css">
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Leaven Reference</p>
+      <h1>GitHub Actions cheat sheet</h1>
+
+      <h2>Workflow vocabulary</h2>
+      <dl>
+        <dt><code>name</code></dt>
+        <dd>The label displayed in the Actions tab.</dd>
+        <dt><code>on</code></dt>
+        <dd>The event or events that start the workflow.</dd>
+        <dt><code>permissions</code></dt>
+        <dd>The access granted to the workflow's GitHub token.</dd>
+        <dt><code>jobs</code></dt>
+        <dd>Independent units of work that may run in parallel.</dd>
+        <dt><code>runs-on</code></dt>
+        <dd>The runner environment used by a job.</dd>
+        <dt><code>steps</code></dt>
+        <dd>Ordered commands and reusable actions within a job.</dd>
+        <dt><code>uses</code></dt>
+        <dd>Invokes a reusable action at a named version.</dd>
+        <dt><code>run</code></dt>
+        <dd>Runs a shell command on the runner.</dd>
+        <dt><code>${{ expression }}</code></dt>
+        <dd>Evaluates GitHub Actions contexts, inputs, operators, or functions.</dd>
+      </dl>
+
+      <h2>Leaven's three workflows</h2>
+      <pre><code>hello.yml              manual learning workflow
+ci.yml                 PR, main push, or manual validation
+dependency-review.yml  PR dependency security review</code></pre>
+
+      <h2>Fast diagnosis</h2>
+      <ol>
+        <li>Open the failed check.</li>
+        <li>Find the first failed step.</li>
+        <li>Read the first concrete error in that step.</li>
+        <li>Reproduce the same command locally.</li>
+      </ol>
+
+      <nav>
+        <a href="../lessons/0001-run-the-hello-workflow.html">Start lesson 1</a>
+        <a href="github-actions-workflow-template.yml">Commented workflow template</a>
+        <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax">Official syntax reference</a>
+      </nav>
+    </main>
+  </body>
+</html>
